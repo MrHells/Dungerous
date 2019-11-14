@@ -1,9 +1,11 @@
 package com.mygdx.game;
 
+import Map.MapLoader;
 import Objects.CameraObject;
 import Colision.Colision;
 import Objects.Entity;
 import Objects.Ground;
+import Objects.Wall;
 import Tools.Mathematics;
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
@@ -24,6 +26,7 @@ import com.badlogic.gdx.graphics.g3d.loader.ObjLoader;
 import com.badlogic.gdx.graphics.g3d.utils.CameraInputController;
 import com.badlogic.gdx.math.Vector3;
 
+import java.io.FileNotFoundException;
 import java.util.ArrayList;
 
 public class Main extends ApplicationAdapter {
@@ -41,46 +44,48 @@ public class Main extends ApplicationAdapter {
     public CameraObject cameraObject;
     public Colision colision = new Colision();
     public ModelInstance modelInstance;
+    public ArrayList<Entity> map = new ArrayList<>();
 
     public void create (){
-        int sum = 0;
-        for (int i = 100; i != 0; i--){
-            sum += i;
-        }
-        System.out.println(sum);
         ModelLoader loader = new ObjLoader();
 
         Mathematics m = new Mathematics();
         m.rotatePointInMatrix(3, 2, 90);
         camera = new PerspectiveCamera(75, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
-        camera.position.set(0f, 10, 0);
+        camera.position.set(0f, 15, 0);
         camera.lookAt(0f, camera.position.y, 0f);
 
         camera.near = 0.1f;
         camera.far = 1000;
 
-        cameraObject = new CameraObject(camera, new float[]{0.3f, 0.1f, 0.3f}, new float[]{-0.3f, -1f, -0.3f}, camera.position, new Vector3(0, 0, 0));
+        cameraObject = new CameraObject(camera, new float[]{0.2f, 0.1f, 0.2f}, new float[]{-0.2f, -1f, -0.2f}, camera.position, new Vector3(0, 0, 0));
         modelBatch = new ModelBatch();
 
         environment = new Environment();
         environment.set(new ColorAttribute(ColorAttribute.AmbientLight, 0.4f, 0.4f, 0.4f, 1f));
-        environment.add(new DirectionalLight().set(0.8f, 0.8f, 0.8f, 0, 0, 0));
-        environment.add(new PointLight().set(Color.YELLOW, cameraObject.getCamera().position, 4));
+        environment.add(new PointLight().set(Color.ORANGE, new Vector3(1, 1, 2), 3));
         environment.add();
-/*
-        for (float x = 1f; x < 2f; x++) {
-            for (float z = -1f; z < 2f; z++){
-                Model model = loader.loadModel(Gdx.files.internal("Models/BigEnemy.obj"));
-                ModelInstance modelInstance = new ModelInstance(model);
-                Entity ent = new Entity(model, new Vector3(x * 10, 0, z* 10), new float[]{1f, 2f, 1f} , new float[]{1f, 2f, 1f}, new Vector3(0, 45, 0));
-                instances.add(ent);
+        MapLoader mapLoader = new MapLoader();
+        ArrayList<Entity> mapObjects = new ArrayList<>();
+        try {
+            mapObjects = mapLoader.createMap();
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+        for (Entity mapObject : mapObjects){
+            if(mapObject.getClass() == Wall.class){
+                map.add(mapObject);
+            }else{
+                entities.add(mapObject);
             }
-        }*/
-        Model model = loader.loadModel(Gdx.files.internal("Models/Ground.obj"));
-        Ground chao = new Ground(model, new Vector3(0, -0.7f, 0), new float[]{5f, 0f, 5f}, new float[]{-5f, 0.1f, -5f}, new Vector3(0, 0, 0));
+        }
 
-        entities.add(chao);
-        modelInstance = new ModelInstance(loader.loadModel(Gdx.files.internal("Models/collisionTest.obj")));
+        Model model = loader.loadModel(Gdx.files.internal("Models/Ground.obj"));
+
+        Ground chao = new Ground(model, new Vector3(0, -0.7f, 0), new float[]{500f, 0.7f, 500f}, new float[]{-500f, 0f, -500f}, new Vector3(0, 0, 0));
+
+        map.add(chao);
+        //modelInstance = new ModelInstance(loader.loadModel(Gdx.files.internal("Models/collisionTest.obj")));
     }
 
     @Override
@@ -106,20 +111,26 @@ public class Main extends ApplicationAdapter {
         Gdx.gl.glViewport(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         Gdx.gl.glClearColor(1, 1, 1, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
-        colision.CollisionTestWithCamera(entities, cameraObject);
-        cameraObject.update();
-        cameraObject.getCamera().update();
-        //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-        //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-        modelInstance.transform.setToTranslation(cameraObject.getCamera().position);
-        modelInstance.transform.rotate(Vector3.X, cameraObject.getCameraRotation());
-        modelBatch.begin(cameraObject.getCamera());
-        System.out.println(cameraObject.getCamera().position.x + " " + cameraObject.getCamera().position.z);
-        modelBatch.render(modelInstance, environment);
+        //colision.CollisionTestWithCamera(entities, cameraObject);
+        //colision.CollisionTestWithCamera(map, cameraObject);
 
+        cameraObject.update(entities, map);
+        cameraObject.getCamera().update();
+
+//        modelInstance.transform.setToTranslation(cameraObject.getCamera().position);
+//        modelInstance.transform.rotate(Vector3.X, cameraObject.getCameraRotation());
+        modelBatch.begin(cameraObject.getCamera());
+        //System.out.println(cameraObject.getCamera().position.x + " " + cameraObject.getCamera().position.z);
+        //modelBatch.render(modelInstance, environment);
+
+        for (int i = 0; i < map.size(); i++){
+            map.get(i).update();
+            modelBatch.render(map.get(i).getModelInstance(), environment);
+        }
         for(int i = 0; i < entities.size(); i++){
             entities.get(i).update();
             modelBatch.render(entities.get(i).getModelInstance(), environment);
+
         }
         modelBatch.end();
     }
