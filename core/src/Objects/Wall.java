@@ -8,17 +8,11 @@ import com.badlogic.gdx.graphics.g3d.loader.ObjLoader;
 import com.badlogic.gdx.math.Vector3;
 
 public class Wall extends Entity {
-    public Wall(Vector3 position) {
-        super(null, position, new float[]{0.5f, 0, 0.5f}, new float[]{-0.5f, 4, -0.5f});
+    public Wall(ModelInstance modelInstance, Vector3 position) {
+        super(modelInstance, position, new float[]{0.51f, 4,0.51f}, new float[]{-0.6f, -2f, -0.6f});
         super.setModelInstance(getModelInstance());
     }
-    public Wall(Model model, Vector3 position, float[] maxHitBoxPoints, float[] minHitBoxPoints, Vector3 rotation) {
-        super(model, position, maxHitBoxPoints, minHitBoxPoints, rotation);
-    }
-    private ModelInstance getModelInstande(){
-        ModelLoader loader = new ObjLoader();
-
-        Model model = loader.loadModel(Gdx.files.internal("Models/Wall.obj"));
-        return new ModelInstance(model);
-    }
+//    public Wall(Model model, Vector3 position, float[] maxHitBoxPoints, float[] minHitBoxPoints, Vector3 rotation) {
+//        super(model, position, maxHitBoxPoints, minHitBoxPoints, rotation);
+//    }
 }
