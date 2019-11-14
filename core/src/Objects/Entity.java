@@ -27,6 +27,7 @@ public class Entity{
         this.rotation = new Vector3(0, 0, 0);
         this.minHitBoxPoints = minHitBoxPoints;
         this.maxHitBoxPoints = maxHitBoxPoints;
+        //modelInstance.
     }
 
     public Entity(Model model, Vector3 position, float[] maxHitBoxPoints, float[] minHitBoxPoints, Vector3 rotation){
@@ -41,7 +42,9 @@ public class Entity{
         rotateModel();
     }
 
-    public void update() {    }
+    public void update() {
+
+    }
 
     private void rotateModel(){
         modelInstance.transform.rotate(Vector3.Y, rotation.y);
