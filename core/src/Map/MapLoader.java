@@ -1,7 +1,15 @@
 package Map;
 
 import Objects.Entity;
+import Objects.Ground;
 import Objects.Wall;
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.assets.loaders.ModelLoader;
+import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g3d.Model;
+import com.badlogic.gdx.graphics.g3d.ModelInstance;
+import com.badlogic.gdx.graphics.g3d.attributes.TextureAttribute;
+import com.badlogic.gdx.graphics.g3d.loader.ObjLoader;
 import com.badlogic.gdx.math.Vector3;
 
 import java.io.File;
@@ -11,11 +19,14 @@ import java.util.ArrayList;
 import java.util.Scanner;
 
 public class MapLoader {
-    public ArrayList<Entity> createMap(ArrayList<Entity> entities) throws FileNotFoundException {
-        File txt = new File("map1.txt");
+    public ArrayList<Entity> createMap() throws FileNotFoundException {
+        File txt = new File("core\\assets\\Maps\\map1.txt");
         Scanner scan = new Scanner(txt);
         ArrayList<ArrayList<String>> map = new ArrayList<>() ;
         int counter = 0;
+        ModelLoader loader = new ObjLoader();
+
+
         while(scan.hasNextLine()){
             String textLine = scan.nextLine();
             ArrayList<String> mapLine = new ArrayList<>();
@@ -31,9 +42,17 @@ public class MapLoader {
             for (int j = 0; j < map.get(i).size(); j++){
                 String classCode = map.get(i).get(j);
                 if(classCode.equals("1")){
-                    mapEntities.add(new Wall(new Vector3(i* 0.5f, 0 , j*0.5f), ));
+
+                    Model model = loader.loadModel(Gdx.files.internal("Models/Wall.obj"));
+                    model.materials.get(0).set(TextureAttribute.createDiffuse(new Texture("Textures/Wall_texture.png")));
+
+                    mapEntities.add(new Wall(new ModelInstance(model), new Vector3(i , 0 , j)));
                 } else if(classCode.equals("M")){
-                    //carrega um mago no array de entidades
+                    Model model = loader.loadModel(Gdx.files.internal("Models/Mage.obj"));
+                    model.materials.get(0).set(TextureAttribute.createDiffuse(new Texture("Textures/Mage_texture.png")));
+                    mapEntities.add(new Ground(new ModelInstance(model), new Vector3(i, 0, j), new float[]{5, 0, 5}, new float[]{-5, 0, -5}));
+
+
                 } else if(classCode.equals("C")){
                     //carrega um baú no arrayDe entidades
                 } else if(classCode.equals("F")){
@@ -44,6 +63,6 @@ public class MapLoader {
             }
         }
 
-        return entities;
+        return mapEntities;
     }
 }
