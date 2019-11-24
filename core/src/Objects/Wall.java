@@ -9,7 +9,7 @@ import com.badlogic.gdx.math.Vector3;
 
 public class Wall extends Entity {
     public Wall(ModelInstance modelInstance, Vector3 position) {
-        super(modelInstance, position, new float[]{0.51f, 4,0.51f}, new float[]{-0.6f, -2f, -0.6f});
+        super(modelInstance, position, new float[]{0.51f, 4,0.51f}, new float[]{-0.6f, -2f, -0.6f}, 99999999);
         super.setModelInstance(getModelInstance());
     }
 //    public Wall(Model model, Vector3 position, float[] maxHitBoxPoints, float[] minHitBoxPoints, Vector3 rotation) {

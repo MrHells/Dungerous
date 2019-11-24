@@ -11,6 +11,8 @@ import com.badlogic.gdx.physics.bullet.collision.btCollisionShape;
 import com.badlogic.gdx.physics.bullet.dynamics.btRigidBody;
 import com.badlogic.gdx.utils.Disposable;
 
+import java.util.ArrayList;
+
 //Extends ModelInstance (depois)
 public class Entity{
     private ModelInstance modelInstance;
@@ -19,15 +21,16 @@ public class Entity{
     private float[] maxHitBoxPoints;
     private float[] minHitBoxPoints;
     private Vector3 rotation;
+    private int health;
 
-    public Entity(ModelInstance modelInstance, Vector3 position, float[] maxHitBoxPoints, float[] minHitBoxPoints){
+    public Entity(ModelInstance modelInstance, Vector3 position, float[] maxHitBoxPoints, float[] minHitBoxPoints, int health){
         this.position = position;
         this.modelInstance = modelInstance;
         this.modelInstance.transform.setToTranslation(position);
         this.rotation = new Vector3(0, 0, 0);
         this.minHitBoxPoints = minHitBoxPoints;
         this.maxHitBoxPoints = maxHitBoxPoints;
-        //modelInstance.
+        this.health = health;
     }
 
     public Entity(Model model, Vector3 position, float[] maxHitBoxPoints, float[] minHitBoxPoints, Vector3 rotation){
@@ -88,6 +91,17 @@ public class Entity{
     public void setRotation(Vector3 rotation){
         this.rotation = rotation;
         rotateModel();
+    }
+
+    public int getHealth() {
+        return health;
+    }
+
+    public void setHealth(int health) {
+        this.health = health;
+    }
+
+    public void update(CameraObject cameraObject, ArrayList<Entity> map) {
     }
 }
 

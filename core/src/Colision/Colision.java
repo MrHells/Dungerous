@@ -9,6 +9,7 @@ import com.badlogic.gdx.math.Vector3;
 import java.util.ArrayList;
 
 public class Colision {
+
     public void testEntitiesCollision(ArrayList<Entity> entities) {
         ArrayList<Entity> toTest = entities;
         
@@ -30,7 +31,7 @@ public class Colision {
         }
     }
 
-    static class Box {
+    public static class Box {
         float xPositionMax;
         float xPositionMin;
         float yPositionMax;
@@ -40,7 +41,7 @@ public class Colision {
         Vector3 position;
         Vector3 rotation;
 
-        Box(Vector3 position, float[] maxPoints, float[] minPoints, Vector3 rotation) {
+        public Box(Vector3 position, float[] maxPoints, float[] minPoints, Vector3 rotation) {
             this.position = position;
             this.rotation = rotation;
             this.xPositionMin = minPoints[0];
@@ -55,29 +56,7 @@ public class Colision {
     private boolean testYCollisionBetweenBoxes(Box box1, Box box2) {
         return ((box2.position.y + box2.yPositionMin) < (box1.yPositionMax + box1.position.y) && (box2.position.y + box2.yPositionMin) > (box1.yPositionMin + box1.position.y));
     }
-    public boolean testQuadraticCollision(Box firstBox, Box secondBox) {
-        float secondBoxRotation = secondBox.rotation.y;
-
-        float firstBoxRotation = firstBox.rotation.y;
-//        btCollisionWorld collisionWorld;
-//
-//        btCollisionConfiguration collisionConfig = new btDefaultCollisionConfiguration();
-//        btDispatcher dispatcher = new btCollisionDispatcher(collisionConfig);
-//        btBroadphaseInterface broadphase = new btDbvtBroadphase();
-//        collisionWorld = new btCollisionWorld(dispatcher, broadphase, collisionConfig);
-//
-//        btCollisionObject firstBoxx, secondsBox;
-//
-//        btCollisionShape firstBoxSHape = new btBoxShape(new Vector3(firstBox.zPositionMin + firstBox.zPositionMax, z));
-//        firstBoxx = new btCollisionObject();
-        //firstBoxx.setCollisionShape(groundShape);
-        //firstBoxx.setWorldTransform(ground.transform);
-
-
-        //System.out.println(secondBox.zPositionMin);
-        Mathematics mathematics = new Mathematics();
-
-
+    public static boolean testQuadraticCollision(Box firstBox, Box secondBox) {
         if(
                 (secondBox.xPositionMax + secondBox.position.x < firstBox.xPositionMax + firstBox.position.x &&
                 secondBox.xPositionMax + secondBox.position.x > firstBox.xPositionMin + firstBox.position.x) ||
@@ -92,19 +71,10 @@ public class Colision {
             ){
                 return true;
             }
-
         }
-
-//        if ((firstBox.zPositionMax + firstBox.position.z >= secondBox.zPositionMax && firstBox.zPositionMin + firstBox.position.z <= secondBox.zPositionMin && firstBox.zPositionMax >= secondBox.xPositionMax && firstBox.xPositionMin <= secondBox.xPositionMin) ||
-//                (firstBox.zPositionMax + firstBox.position.z <= secondBox.zPositionMax && firstBox.zPositionMin + firstBox.position.z >= secondBox.zPositionMin && firstBox.zPositionMax <= secondBox.xPositionMax && firstBox.xPositionMin >= secondBox.xPositionMin)) {
-//            System.out.println("WHAT A COLLISION");
-//            return true;
-//        }
-
         return false;
 
     }
-
 
     public boolean CollisionTestWithCamera(ArrayList<Entity> entities, CameraObject cameraObject) {
         Box cameraBox = new Box(cameraObject.getCamera().position, cameraObject.getMaxHitBoxPoints(), cameraObject.getMinHitBoxPoints(), new Vector3(0, 0, 0));
@@ -112,15 +82,50 @@ public class Colision {
             Box entityBox = new Box(entity.getPosition(), entity.getMaxHitBoxPoints(), entity.getMinHitBoxPoints(), entity.getRotation());
             if (testQuadraticCollision(entityBox, cameraBox) ) {
                 if(testYCollisionBetweenBoxes(cameraBox, entityBox) || testYCollisionBetweenBoxes(entityBox, cameraBox)){
-                    if(entity.getClass() == Ground.class){
-                        System.out.println("Colidiu GROUND");
-                    } else{
-                        System.out.println("Colidiu wall");
-                    }
-
                     return true;
                 }
             }
+        }
+        return false;
+    }
+
+    public static boolean textLineIntersectionWithBox(Box box, Vector3 firstPoint, Vector3 secondPoint){
+        secondPoint = new Vector3(secondPoint.x - firstPoint.x, secondPoint.y - firstPoint.y, secondPoint.z - firstPoint.z);
+        box.position = new Vector3(box.position.x - firstPoint.x, box.position.y - firstPoint.y, box.position.z - firstPoint.z);
+        firstPoint = new Vector3(0, 0, 0);
+
+        float catetoOposto = secondPoint.x;
+        float catetoAdjacente = secondPoint.z;
+        if(catetoOposto <= 0){
+            catetoOposto *= -1;
+        }
+        if(catetoAdjacente <= 0){
+            catetoAdjacente *= -1;
+        }
+
+        float hyp =(float) Math.sqrt(Math.pow(catetoOposto, 2) + Math.pow(catetoAdjacente, 2));
+        float sin = catetoOposto/hyp;
+        float cos = catetoAdjacente/hyp;
+
+        float[] newSecondPoint = Mathematics.rotatePointInMatrix(secondPoint.x, secondPoint.z, cos, sin);
+        secondPoint.x = newSecondPoint[0];
+        secondPoint.z = newSecondPoint[1];
+
+        float[] newBoxPoint = Mathematics.rotatePointInMatrix(box.position.x, box.position.z, cos, sin);
+        box.position.x = newBoxPoint[0];
+        box.position.z = newBoxPoint[1];
+        if(secondPoint.x < box.position.x + box.xPositionMax && secondPoint.x > box.position.x + box.xPositionMin){
+            newSecondPoint = Mathematics.rotatePointInMatrix(secondPoint.x, secondPoint.z, 1, 1);
+            secondPoint.x = newSecondPoint[0];
+            secondPoint.z = newSecondPoint[1];
+
+            newBoxPoint = Mathematics.rotatePointInMatrix(box.position.x, box.position.z, 1, 1);
+            box.position.x = newBoxPoint[0];
+            box.position.z = newBoxPoint[1];
+            if(secondPoint.z < box.position.z + box.zPositionMax && secondPoint.z > box.position.z + box.zPositionMin){
+                return true;
+            }
+
         }
         return false;
     }

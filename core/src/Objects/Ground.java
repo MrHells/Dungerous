@@ -9,7 +9,7 @@ import com.badlogic.gdx.math.Vector3;
 
 public class Ground extends Entity{
     public Ground(ModelInstance modelInstance, Vector3 position, float[] maxHitBoxPoints, float[] minHitBoxPoints) {
-        super(modelInstance, position, maxHitBoxPoints, minHitBoxPoints);
+        super(modelInstance, position, maxHitBoxPoints, minHitBoxPoints, 999999999);
         super.getModelInstance().materials.add( new Material(ColorAttribute.createDiffuse(Color.GREEN)));
 
     }

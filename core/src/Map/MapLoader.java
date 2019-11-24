@@ -1,7 +1,10 @@
 package Map;
 
+import Objects.Enemies.MeleeEnemy;
+import Objects.Enemies.RangedEnemy;
 import Objects.Entity;
 import Objects.Ground;
+import Objects.Portal;
 import Objects.Wall;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.assets.loaders.ModelLoader;
@@ -19,11 +22,10 @@ import java.util.ArrayList;
 import java.util.Scanner;
 
 public class MapLoader {
-    public ArrayList<Entity> createMap() throws FileNotFoundException {
-        File txt = new File("core\\assets\\Maps\\map1.txt");
+    public ArrayList<Entity> createMap(int level) throws FileNotFoundException {
+        File txt = new File("core\\assets\\Maps\\map"+level+".txt");
         Scanner scan = new Scanner(txt);
         ArrayList<ArrayList<String>> map = new ArrayList<>() ;
-        int counter = 0;
         ModelLoader loader = new ObjLoader();
 
 
@@ -34,7 +36,6 @@ public class MapLoader {
                 mapLine.add(Character.toString(textLine.charAt(i)));
             }
             map.add(mapLine);
-            counter++;
         }
         ArrayList<Entity> mapEntities = new ArrayList<>();
         System.out.println(map);
@@ -42,23 +43,23 @@ public class MapLoader {
             for (int j = 0; j < map.get(i).size(); j++){
                 String classCode = map.get(i).get(j);
                 if(classCode.equals("1")){
-
                     Model model = loader.loadModel(Gdx.files.internal("Models/Wall.obj"));
                     model.materials.get(0).set(TextureAttribute.createDiffuse(new Texture("Textures/Wall_texture.png")));
-
                     mapEntities.add(new Wall(new ModelInstance(model), new Vector3(i , 0 , j)));
                 } else if(classCode.equals("M")){
                     Model model = loader.loadModel(Gdx.files.internal("Models/Mage.obj"));
                     model.materials.get(0).set(TextureAttribute.createDiffuse(new Texture("Textures/Mage_texture.png")));
-                    mapEntities.add(new Ground(new ModelInstance(model), new Vector3(i, 0, j), new float[]{5, 0, 5}, new float[]{-5, 0, -5}));
-
-
-                } else if(classCode.equals("C")){
-                    //carrega um baú no arrayDe entidades
+                    mapEntities.add(new RangedEnemy(new ModelInstance(model), new Vector3(i, 0, j), new float[]{0.4f, 0, 0.4f}, new float[]{-0.4f, 0, -0.4f}, 5));
+                } else if(classCode.equals("E")){
+                    Model model = loader.loadModel(Gdx.files.internal("Models/Gost.obj"));
+                    //model.materials.get(0).set(TextureAttribute.createDiffuse(new Texture("Textures/Gost_texture.png")));
+                    mapEntities.add(new MeleeEnemy(new ModelInstance(model), new Vector3(i, 0, j), new float[]{0.4f, 0, 0.4f}, new float[]{-0.4f, 0, -0.4f}, 5));
                 } else if(classCode.equals("F")){
                     // carrega uma parede falsa(que quebra ou que pode ser atravessada)(deve ser entidade)
-                } else if (classCode.equals("T")){
-                    //carrega uma tocha no mapa( um modelo que tem uma luz na mesma posição)
+                } else if (classCode.equals("!")){
+                    Model model = loader.loadModel(Gdx.files.internal("Models/Portal.obj"));
+                    model.materials.get(0).set(TextureAttribute.createDiffuse(new Texture("Textures/Portal_texture.png")));
+                    mapEntities.add(new Portal(new ModelInstance(model), new Vector3(i, 0, j), new float[]{0.4f, 0, 0.4f}, new float[]{-0.4f, 0, -0.4f}, 5));
                 }
             }
         }
